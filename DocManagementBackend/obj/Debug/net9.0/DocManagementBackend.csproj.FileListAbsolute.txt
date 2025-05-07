@@ -915,3 +915,14 @@ C:\Users\ENNAKI\Desktop\app\DMBApp\DocManagementBackend\obj\Debug\net9.0\refint\
 C:\Users\ENNAKI\Desktop\app\DMBApp\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.pdb
 C:\Users\ENNAKI\Desktop\app\DMBApp\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.genruntimeconfig.cache
 C:\Users\ENNAKI\Desktop\app\DMBApp\DocManagementBackend\obj\Debug\net9.0\ref\DocManagementBackend.dll
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.csproj.AssemblyReference.cache
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.AssemblyInfoInputs.cache
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.AssemblyInfo.cs
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.csproj.CoreCompileInputs.cache
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.MvcApplicationPartsAssemblyInfo.cs
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.MvcApplicationPartsAssemblyInfo.cache
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.sourcelink.json
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.dll
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\refint\DocManagementBackend.dll
+C:\Users\ENNAKI\Desktop\claudeProject\DocManagementBackend\obj\Debug\net9.0\DocManagementBackend.pdb

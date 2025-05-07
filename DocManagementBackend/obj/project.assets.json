@@ -10337,11 +10337,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj",
+      "projectUniqueName": "C:\\Users\\ENNAKI\\Desktop\\claudeProject\\DocManagementBackend\\DocManagementBackend.csproj",
       "projectName": "DocManagementBackend",
-      "projectPath": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj",
+      "projectPath": "C:\\Users\\ENNAKI\\Desktop\\claudeProject\\DocManagementBackend\\DocManagementBackend.csproj",
       "packagesPath": "C:\\Users\\ENNAKI\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\obj\\",
+      "outputPath": "C:\\Users\\ENNAKI\\Desktop\\claudeProject\\DocManagementBackend\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\ENNAKI\\AppData\\Roaming\\NuGet\\NuGet.Config"
