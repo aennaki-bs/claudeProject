@@ -1,0 +1,73 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\admin_b4e899d2-1d81-4fce-80ec-fd8491c09283.jpg",
+      "PackagePath": "staticwebassets\\images\\profile\\admin_b4e899d2-1d81-4fce-80ec-fd8491c09283.jpg"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\admino_4b0f0011-684b-4896-90f5-bf6b4ac73dde.png",
+      "PackagePath": "staticwebassets\\images\\profile\\admino_4b0f0011-684b-4896-90f5-bf6b4ac73dde.png"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\aennaki_8ae3a9e0-bad9-49a5-b424-dd6d9bd59a3e.jpg",
+      "PackagePath": "staticwebassets\\images\\profile\\aennaki_8ae3a9e0-bad9-49a5-b424-dd6d9bd59a3e.jpg"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\aennaki_c6160ff9-9945-45a6-b23d-991a3173b5a2.jpg",
+      "PackagePath": "staticwebassets\\images\\profile\\aennaki_c6160ff9-9945-45a6-b23d-991a3173b5a2.jpg"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\ahennaki_bcd84c0c-0f19-4899-9ceb-830edd3349cc.jpg",
+      "PackagePath": "staticwebassets\\images\\profile\\ahennaki_bcd84c0c-0f19-4899-9ceb-830edd3349cc.jpg"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\ahennaki_f5c94160-07cb-4ec6-b59d-092884aac50b.png",
+      "PackagePath": "staticwebassets\\images\\profile\\ahennaki_f5c94160-07cb-4ec6-b59d-092884aac50b.png"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\ash01_89b55438-2664-4d1b-937b-29a203ccd75c.jpg",
+      "PackagePath": "staticwebassets\\images\\profile\\ash01_89b55438-2664-4d1b-937b-29a203ccd75c.jpg"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\default.png",
+      "PackagePath": "staticwebassets\\images\\profile\\default.png"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\ennaki1_32352688-e030-4708-9b5e-1b1e35839e9c.jpg",
+      "PackagePath": "staticwebassets\\images\\profile\\ennaki1_32352688-e030-4708-9b5e-1b1e35839e9c.jpg"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\mamounib_043f186c-f6cd-4898-afe2-d012078b52bf.jpg",
+      "PackagePath": "staticwebassets\\images\\profile\\mamounib_043f186c-f6cd-4898-afe2-d012078b52bf.jpg"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\mamounib_401561e2-2b41-4b63-ba0c-b151b14d13d2.jpg",
+      "PackagePath": "staticwebassets\\images\\profile\\mamounib_401561e2-2b41-4b63-ba0c-b151b14d13d2.jpg"
+    },
+    {
+      "Id": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\wwwroot\\images\\profile\\yassine_000fe99c-348d-4fa2-831b-8e243f543c74.png",
+      "PackagePath": "staticwebassets\\images\\profile\\yassine_000fe99c-348d-4fa2-831b-8e243f543c74.png"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.DocManagementBackend.Microsoft.AspNetCore.StaticWebAssetEndpoints.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssetEndpoints.props"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.DocManagementBackend.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.build.DocManagementBackend.props",
+      "PackagePath": "build\\DocManagementBackend.props"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.buildMultiTargeting.DocManagementBackend.props",
+      "PackagePath": "buildMultiTargeting\\DocManagementBackend.props"
+    },
+    {
+      "Id": "obj\\Debug\\net9.0\\staticwebassets\\msbuild.buildTransitive.DocManagementBackend.props",
+      "PackagePath": "buildTransitive\\DocManagementBackend.props"
+    }
+  ],
+  "ElementsToRemove": []
+}

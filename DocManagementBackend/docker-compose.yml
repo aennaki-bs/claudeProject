@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  docmanagementbackend:
+    build: .
+    image: docmanagementbackend
+    ports:
+      - "5204:8080"
+    environment:
+      - JWT_SECRET=${JWT_SECRET}
+      - EMAIL_ADDRESS=${EMAIL_ADDRESS}
+      - EMAIL_PASSWORD=${EMAIL_PASSWORD}
+      - DOMAIN_NAME=${DOMAIN_NAME}
+      - FRONTEND_DOMAIN=${FRONTEND_DOMAIN}
+      - ADMIN_SECRET=${ADMIN_SECRET}
+    volumes:
+      - ./wwwroot/images/profile:/app/wwwroot/images/profile

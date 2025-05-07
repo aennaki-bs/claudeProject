@@ -1,0 +1,6 @@
+@DocManagementBackend_HostAddress = http://localhost:5204
+
+GET {{DocManagementBackend_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
