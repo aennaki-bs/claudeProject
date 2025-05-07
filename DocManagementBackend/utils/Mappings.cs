@@ -3,6 +3,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using DocManagementBackend.Models;
 using DocManagementBackend.ModelsDtos;
+using AutoMapper;
 
 namespace DocManagementBackend.Mappings
 {
