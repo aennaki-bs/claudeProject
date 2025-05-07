@@ -1,9 +1,8 @@
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using DocManagementBackend.Models;
 using DocManagementBackend.ModelsDtos;
-using AutoMapper;
-using Microsoft.EntityFrameworkCore;
 
 namespace DocManagementBackend.Mappings
 {
@@ -36,7 +35,7 @@ namespace DocManagementBackend.Mappings
                         TypeAttr = l.Document.DocumentType.TypeAttr
                     },
                 CreatedAt = l.Document.CreatedAt,
-                UpdatedAt = l.Document.UpdatedAt,
+                UpdatedAt = l.Document.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
                 Status = l.Document.Status,
                 CreatedByUserId = l.Document.CreatedByUserId,
                 CreatedBy = l.Document.CreatedBy == null
@@ -53,7 +52,10 @@ namespace DocManagementBackend.Mappings
                             : "SimpleUser"
                     },
                 LignesCount = l.Document.Lignes.Count,
-                SousLignesCount = l.Document.Lignes.Sum(ll => ll.SousLignes.Count)
+                SousLignesCount = l.Document.Lignes.Sum(ll => ll.SousLignes.Count),
+                // Add missing properties
+                CurrentStatusId = l.Document.CurrentStatusId,
+                CurrentStatusTitle = l.Document.CurrentStatus != null ? l.Document.CurrentStatus.Title : string.Empty
             },
             SousLignesCount = l.SousLignes.Count
         };
@@ -69,8 +71,8 @@ namespace DocManagementBackend.Mappings
             Attribute = s.Attribute,
             Ligne = new LigneDto
             {
-                Id = s.Id,
-                DocumentId = s.Ligne!.DocumentId,
+                Id = s.Ligne!.Id,
+                DocumentId = s.Ligne.DocumentId,
                 LingeKey = s.Ligne.LigneKey,
                 Title = s.Ligne.Title,
                 Article = s.Ligne.Article,
@@ -94,7 +96,7 @@ namespace DocManagementBackend.Mappings
                             TypeAttr = s.Ligne.Document.DocumentType.TypeAttr
                         },
                     CreatedAt = s.Ligne.Document.CreatedAt,
-                    UpdatedAt = s.Ligne.Document.UpdatedAt,
+                    UpdatedAt = s.Ligne.Document.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
                     Status = s.Ligne.Document.Status,
                     CreatedByUserId = s.Ligne.Document.CreatedByUserId,
                     CreatedBy = s.Ligne.Document.CreatedBy == null
@@ -109,7 +111,10 @@ namespace DocManagementBackend.Mappings
                             Role = s.Ligne.Document.CreatedBy.Role != null
                                 ? s.Ligne.Document.CreatedBy.Role.RoleName
                                 : "SimpleUser"
-                        }
+                        },
+                    // Add missing properties
+                    CurrentStatusId = s.Ligne.Document.CurrentStatusId,
+                    CurrentStatusTitle = s.Ligne.Document.CurrentStatus != null ? s.Ligne.Document.CurrentStatus.Title : string.Empty
                 }
             }
         };
@@ -125,8 +130,8 @@ namespace DocManagementBackend.Mappings
             Title = d.Title,
             Content = d.Content,
             CreatedAt = d.CreatedAt,
-            UpdatedAt = d.UpdatedAt,
-            DocDate = d.DocDate,
+            UpdatedAt = d.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
+            DocDate = d.DocDate ?? DateTime.UtcNow, // Fix nullable DateTime
             Status = d.Status,
             TypeId = d.TypeId,
             DocumentType = new DocumentTypeDto
@@ -136,7 +141,7 @@ namespace DocManagementBackend.Mappings
                 TypeAttr = d.DocumentType.TypeAttr
             },
             SubTypeId = d.SubTypeId,
-            SubType = d.SubType == null ? null : new SubTypeDto
+            SubType = d.SubType == null ? null : new Models.SubTypeDto // Specify namespace to resolve ambiguity
             {
                 Id = d.SubType.Id,
                 SubTypeKey = d.SubType.SubTypeKey,
@@ -160,6 +165,8 @@ namespace DocManagementBackend.Mappings
             LignesCount = d.Lignes.Count,
             SousLignesCount = d.Lignes.Sum(l => l.SousLignes.Count),
             CircuitId = d.CircuitId,
+            CurrentStepId = d.CurrentStepId,
+            CurrentStepTitle = d.CurrentStep != null ? d.CurrentStep.Title : string.Empty,
             CurrentStatusId = d.CurrentStatusId,
             CurrentStatusTitle = d.CurrentStatus != null ? d.CurrentStatus.Title : string.Empty,
             IsCircuitCompleted = d.IsCircuitCompleted
@@ -168,29 +175,29 @@ namespace DocManagementBackend.Mappings
 
     public static class UserMappings
     {
-        public static Expression<Func<User, UserDto>> ToUserDto = d => new UserDto
+        public static Expression<Func<User, UserDto>> ToUserDto = u => new UserDto
         {
-            Id = d.Id,
-            Email = d.Email,
-            Username = d.Username,
-            FirstName = d.FirstName,
-            LastName = d.LastName,
-            City = d.City,
-            WebSite = d.WebSite,
-            Address = d.Address,
-            PhoneNumber = d.PhoneNumber,
-            Country = d.Country,
-            UserType = d.UserType,
-            Identity = d.Identity,
-            IsEmailConfirmed = d.IsEmailConfirmed,
-            EmailVerificationCode = d.EmailVerificationCode,
-            IsActive = d.IsActive,
-            IsOnline = d.IsOnline,
-            ProfilePicture = d.ProfilePicture,
+            Id = u.Id,
+            Email = u.Email,
+            Username = u.Username,
+            FirstName = u.FirstName,
+            LastName = u.LastName,
+            City = u.City,
+            WebSite = u.WebSite,
+            Address = u.Address,
+            PhoneNumber = u.PhoneNumber,
+            Country = u.Country,
+            UserType = u.UserType,
+            Identity = u.Identity,
+            IsEmailConfirmed = u.IsEmailConfirmed,
+            EmailVerificationCode = u.EmailVerificationCode,
+            IsActive = u.IsActive,
+            IsOnline = u.IsOnline,
+            ProfilePicture = u.ProfilePicture,
             Role = new RoleDto
             {
-                RoleId = d.Role!.Id,
-                RoleName = d.Role.RoleName
+                RoleId = u.Role!.Id,
+                RoleName = u.Role.RoleName
             }
         };
     }
@@ -209,6 +216,7 @@ namespace DocManagementBackend.Mappings
             config.CreateMap<CircuitStatus, CircuitStatusDto>();
         }
 
+        // Add extension methods for ToDto()
         public static DocumentDto ToDto(this Document document)
         {
             return new DocumentDto
@@ -218,9 +226,9 @@ namespace DocManagementBackend.Mappings
                 DocumentKey = document.DocumentKey,
                 DocumentAlias = document.DocumentAlias,
                 Status = document.Status,
-                DocDate = document.DocDate,
+                DocDate = document.DocDate ?? DateTime.UtcNow, // Fix nullable DateTime
                 CreatedAt = document.CreatedAt,
-                UpdatedAt = document.UpdatedAt,
+                UpdatedAt = document.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
                 CircuitId = document.CircuitId,
                 CurrentStepId = document.CurrentStepId,
                 CurrentStepTitle = document.CurrentStep?.Title ?? string.Empty,
@@ -242,7 +250,7 @@ namespace DocManagementBackend.Mappings
                 HasOrderedFlow = circuit.HasOrderedFlow,
                 AllowBacktrack = circuit.AllowBacktrack,
                 CreatedAt = circuit.CreatedAt,
-                UpdatedAt = circuit.UpdatedAt,
+                UpdatedAt = circuit.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
                 Steps = circuit.Steps?.Select(s => s.ToDto()).ToList() ?? new List<CircuitStepDto>(),
                 Statuses = circuit.Statuses?.Select(s => s.ToDto()).ToList() ?? new List<CircuitStatusDto>()
             };
@@ -262,7 +270,7 @@ namespace DocManagementBackend.Mappings
                 ToStatusId = step.ToStatusId,
                 IsFinalStep = step.IsFinalStep,
                 CreatedAt = step.CreatedAt,
-                UpdatedAt = step.UpdatedAt
+                UpdatedAt = step.UpdatedAt ?? DateTime.UtcNow // Fix nullable DateTime
             };
         }
 
@@ -277,7 +285,7 @@ namespace DocManagementBackend.Mappings
                 IsActive = status.IsActive,
                 OrderIndex = status.OrderIndex,
                 CreatedAt = status.CreatedAt,
-                UpdatedAt = status.UpdatedAt
+                UpdatedAt = status.UpdatedAt ?? DateTime.UtcNow // Fix nullable DateTime
             };
         }
     }

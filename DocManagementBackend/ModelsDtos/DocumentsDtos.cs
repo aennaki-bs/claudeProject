@@ -45,6 +45,8 @@ namespace DocManagementBackend.Models
         public int? CircuitId { get; set; }
         public int? CurrentStepId { get; set; }
         public string CurrentStepTitle { get; set; } = string.Empty;
+        public int? CurrentStatusId { get; set; }
+        public string CurrentStatusTitle { get; set; } = string.Empty;
         public bool IsCircuitCompleted { get; set; }
     }
 }

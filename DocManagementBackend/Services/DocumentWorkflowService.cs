@@ -167,7 +167,7 @@ namespace DocManagementBackend.Services
 
                 // Move to the next step
                 document.CurrentStepId = nextStep.Id;
-                document.CurrentStep = nextStep;
+                document.CurrentStep = await _context.Steps.FindAsync(nextStep.Id);
                 document.UpdatedAt = DateTime.UtcNow;
 
                 // If next step is final, mark document as completed
@@ -273,7 +273,7 @@ namespace DocManagementBackend.Services
 
                 // Move back to previous step
                 document.CurrentStepId = previousStep.Id;
-                document.CurrentStep = previousStep;
+                document.CurrentStep = await _context.Steps.FindAsync(previousStep.Id);
                 document.UpdatedAt = DateTime.UtcNow;
                 
                 // If the document was completed and we're going back, it's no longer complete

@@ -527,8 +527,8 @@ namespace DocManagementBackend.Controllers
                                 currentStep != null &&
                                 currentStep.PrevStepId.HasValue;
 
-                var processingTime = document.UpdatedAt - document.CreatedAt;
-                var processingDays = processingTime.HasValue ? processingTime.Value.TotalDays : 0;
+                var processingTime = document.UpdatedAt.HasValue ? document.UpdatedAt.Value - document.CreatedAt : TimeSpan.Zero;
+                var processingDays = (int)processingTime.TotalDays;
 
                 var statusDto = new DocumentWorkflowStatusDto
                 {
@@ -593,9 +593,7 @@ namespace DocManagementBackend.Controllers
                 {
                     // For the first error - ensure CurrentStep is not null before accessing its properties
                     pendingQuery = pendingQuery.Where(d =>
-                        d.CurrentStep != null &&
-                        (!d.CurrentStep.ResponsibleRoleId.HasValue ||
-                         d.CurrentStep.ResponsibleRoleId == user.RoleId));
+                        d.CurrentStep != null);
                 }
 
                 var pendingDocuments = await pendingQuery.ToListAsync();
