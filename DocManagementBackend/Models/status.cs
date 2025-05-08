@@ -10,14 +10,17 @@ namespace DocManagementBackend.Models
         public int Id { get; set; }
         public string StatusKey { get; set; } = string.Empty;
         [Required]
-        public int StepId { get; set; }
-        [ForeignKey("StepId")]
+        public int CircuitId { get; set; }
+        [ForeignKey("CircuitId")]
         [JsonIgnore]
-        public Step? Step { get; set; }
+        public Circuit? Circuit { get; set; }
         [Required]
         public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public bool IsRequired { get; set; } = true;
-        public bool IsComplete { get; set; } = false;
+        public bool IsInitial { get; set; } = false;
+        public bool IsFinal { get; set; } = false;
+        public bool IsFlexible { get; set; } = false;
     }
 
     public class DocumentStatus

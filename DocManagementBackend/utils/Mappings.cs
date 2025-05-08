@@ -1,9 +1,7 @@
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using DocManagementBackend.Models;
-using DocManagementBackend.ModelsDtos;
-using AutoMapper;
+
 
 namespace DocManagementBackend.Mappings
 {
@@ -36,7 +34,7 @@ namespace DocManagementBackend.Mappings
                         TypeAttr = l.Document.DocumentType.TypeAttr
                     },
                 CreatedAt = l.Document.CreatedAt,
-                UpdatedAt = l.Document.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
+                UpdatedAt = l.Document.UpdatedAt,
                 Status = l.Document.Status,
                 CreatedByUserId = l.Document.CreatedByUserId,
                 CreatedBy = l.Document.CreatedBy == null
@@ -53,13 +51,11 @@ namespace DocManagementBackend.Mappings
                             : "SimpleUser"
                     },
                 LignesCount = l.Document.Lignes.Count,
-                SousLignesCount = l.Document.Lignes.Sum(ll => ll.SousLignes.Count),
-                // Add missing properties
-                CurrentStatusId = l.Document.CurrentStatusId,
-                CurrentStatusTitle = l.Document.CurrentStatus != null ? l.Document.CurrentStatus.Title : string.Empty
+                SousLignesCount = l.Document.Lignes.Sum(ll => ll.SousLignes.Count)
             },
             SousLignesCount = l.SousLignes.Count
         };
+
     }
 
     public static class SousLigneMappings
@@ -72,8 +68,8 @@ namespace DocManagementBackend.Mappings
             Attribute = s.Attribute,
             Ligne = new LigneDto
             {
-                Id = s.Ligne!.Id,
-                DocumentId = s.Ligne.DocumentId,
+                Id = s.Id,
+                DocumentId = s.Ligne!.DocumentId,
                 LingeKey = s.Ligne.LigneKey,
                 Title = s.Ligne.Title,
                 Article = s.Ligne.Article,
@@ -97,7 +93,7 @@ namespace DocManagementBackend.Mappings
                             TypeAttr = s.Ligne.Document.DocumentType.TypeAttr
                         },
                     CreatedAt = s.Ligne.Document.CreatedAt,
-                    UpdatedAt = s.Ligne.Document.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
+                    UpdatedAt = s.Ligne.Document.UpdatedAt,
                     Status = s.Ligne.Document.Status,
                     CreatedByUserId = s.Ligne.Document.CreatedByUserId,
                     CreatedBy = s.Ligne.Document.CreatedBy == null
@@ -112,10 +108,7 @@ namespace DocManagementBackend.Mappings
                             Role = s.Ligne.Document.CreatedBy.Role != null
                                 ? s.Ligne.Document.CreatedBy.Role.RoleName
                                 : "SimpleUser"
-                        },
-                    // Add missing properties
-                    CurrentStatusId = s.Ligne.Document.CurrentStatusId,
-                    CurrentStatusTitle = s.Ligne.Document.CurrentStatus != null ? s.Ligne.Document.CurrentStatus.Title : string.Empty
+                        }
                 }
             }
         };
@@ -131,8 +124,8 @@ namespace DocManagementBackend.Mappings
             Title = d.Title,
             Content = d.Content,
             CreatedAt = d.CreatedAt,
-            UpdatedAt = d.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
-            DocDate = d.DocDate ?? DateTime.UtcNow, // Fix nullable DateTime
+            UpdatedAt = d.UpdatedAt,
+            DocDate = d.DocDate,
             Status = d.Status,
             TypeId = d.TypeId,
             DocumentType = new DocumentTypeDto
@@ -142,7 +135,7 @@ namespace DocManagementBackend.Mappings
                 TypeAttr = d.DocumentType.TypeAttr
             },
             SubTypeId = d.SubTypeId,
-            SubType = d.SubType == null ? null : new Models.SubTypeDto // Specify namespace to resolve ambiguity
+            SubType = d.SubType == null ? null : new SubTypeDto
             {
                 Id = d.SubType.Id,
                 SubTypeKey = d.SubType.SubTypeKey,
@@ -168,126 +161,36 @@ namespace DocManagementBackend.Mappings
             CircuitId = d.CircuitId,
             CurrentStepId = d.CurrentStepId,
             CurrentStepTitle = d.CurrentStep != null ? d.CurrentStep.Title : string.Empty,
-            CurrentStatusId = d.CurrentStatusId,
-            CurrentStatusTitle = d.CurrentStatus != null ? d.CurrentStatus.Title : string.Empty,
             IsCircuitCompleted = d.IsCircuitCompleted
         };
     }
 
     public static class UserMappings
     {
-        public static Expression<Func<User, UserDto>> ToUserDto = u => new UserDto
+        public static Expression<Func<User, UserDto>> ToUserDto = d => new UserDto
         {
-            Id = u.Id,
-            Email = u.Email,
-            Username = u.Username,
-            FirstName = u.FirstName,
-            LastName = u.LastName,
-            City = u.City,
-            WebSite = u.WebSite,
-            Address = u.Address,
-            PhoneNumber = u.PhoneNumber,
-            Country = u.Country,
-            UserType = u.UserType,
-            Identity = u.Identity,
-            IsEmailConfirmed = u.IsEmailConfirmed,
-            EmailVerificationCode = u.EmailVerificationCode,
-            IsActive = u.IsActive,
-            IsOnline = u.IsOnline,
-            ProfilePicture = u.ProfilePicture,
+            Id = d.Id,
+            Email = d.Email,
+            Username = d.Username,
+            FirstName = d.FirstName,
+            LastName = d.LastName,
+            City = d.City,
+            WebSite = d.WebSite,
+            Address = d.Address,
+            PhoneNumber = d.PhoneNumber,
+            Country = d.Country,
+            UserType = d.UserType,
+            Identity = d.Identity,
+            IsEmailConfirmed = d.IsEmailConfirmed,
+            EmailVerificationCode = d.EmailVerificationCode,
+            IsActive = d.IsActive,
+            IsOnline = d.IsOnline,
+            ProfilePicture = d.ProfilePicture,
             Role = new RoleDto
             {
-                RoleId = u.Role!.Id,
-                RoleName = u.Role.RoleName
+                RoleId = d.Role!.Id,
+                RoleName = d.Role.RoleName
             }
         };
-    }
-
-    public static class Mappings
-    {
-        public static void ConfigureMappings(this IMapperConfigurationExpression config)
-        {
-            config.CreateMap<Ligne, LigneDto>();
-            config.CreateMap<SousLigne, SousLigneDto>();
-            config.CreateMap<Document, DocumentDto>();
-            config.CreateMap<DocumentType, DocumentTypeDto>();
-            config.CreateMap<User, UserDto>();
-            config.CreateMap<Circuit, CircuitDto>();
-            config.CreateMap<CircuitStep, CircuitStepDto>();
-            config.CreateMap<CircuitStatus, CircuitStatusDto>();
-        }
-
-        // Add extension methods for ToDto()
-        public static DocumentDto ToDto(this Document document)
-        {
-            return new DocumentDto
-            {
-                Id = document.Id,
-                Title = document.Title,
-                DocumentKey = document.DocumentKey,
-                DocumentAlias = document.DocumentAlias,
-                Status = document.Status,
-                DocDate = document.DocDate ?? DateTime.UtcNow, // Fix nullable DateTime
-                CreatedAt = document.CreatedAt,
-                UpdatedAt = document.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
-                CircuitId = document.CircuitId,
-                CurrentStepId = document.CurrentStepId,
-                CurrentStepTitle = document.CurrentStep?.Title ?? string.Empty,
-                CurrentStatusId = document.CurrentStatusId,
-                CurrentStatusTitle = document.CurrentStatus?.Title ?? string.Empty,
-                IsCircuitCompleted = document.IsCircuitCompleted
-            };
-        }
-
-        public static CircuitDto ToDto(this Circuit circuit)
-        {
-            return new CircuitDto
-            {
-                Id = circuit.Id,
-                CircuitKey = circuit.CircuitKey,
-                Title = circuit.Title,
-                Description = circuit.Description ?? string.Empty,
-                IsActive = circuit.IsActive,
-                HasOrderedFlow = circuit.HasOrderedFlow,
-                AllowBacktrack = circuit.AllowBacktrack,
-                CreatedAt = circuit.CreatedAt,
-                UpdatedAt = circuit.UpdatedAt ?? DateTime.UtcNow, // Fix nullable DateTime
-                Steps = circuit.Steps?.Select(s => s.ToDto()).ToList() ?? new List<CircuitStepDto>(),
-                Statuses = circuit.Statuses?.Select(s => s.ToDto()).ToList() ?? new List<CircuitStatusDto>()
-            };
-        }
-
-        public static CircuitStepDto ToDto(this CircuitStep step)
-        {
-            return new CircuitStepDto
-            {
-                Id = step.Id,
-                StepKey = step.StepKey,
-                CircuitId = step.CircuitId,
-                Title = step.Title,
-                Descriptif = step.Descriptif,
-                OrderIndex = step.OrderIndex,
-                FromStatusId = step.FromStatusId,
-                ToStatusId = step.ToStatusId,
-                IsFinalStep = step.IsFinalStep,
-                CreatedAt = step.CreatedAt,
-                UpdatedAt = step.UpdatedAt ?? DateTime.UtcNow // Fix nullable DateTime
-            };
-        }
-
-        public static CircuitStatusDto ToDto(this CircuitStatus status)
-        {
-            return new CircuitStatusDto
-            {
-                Id = status.Id,
-                CircuitId = status.CircuitId,
-                Title = status.Title,
-                Type = status.Type,
-                IsActive = status.IsActive,
-                OrderIndex = status.OrderIndex,
-                CreatedAt = status.CreatedAt,
-                UpdatedAt = status.UpdatedAt ?? DateTime.UtcNow // Fix nullable DateTime
-            };
-        }
     }
 }

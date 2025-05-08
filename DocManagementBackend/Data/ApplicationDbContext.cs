@@ -20,8 +20,6 @@ namespace DocManagementBackend.Data
         public DbSet<SubType> SubTypes { get; set; }
         public DbSet<TypeCounter> TypeCounter { get; set; }
         public DbSet<Circuit> Circuits { get; set; }
-        public DbSet<CircuitStatus> CircuitStatuses { get; set; }
-        public DbSet<CircuitStep> CircuitSteps { get; set; }
         public DbSet<DocumentCircuitHistory> DocumentCircuitHistory { get; set; }
         public DbSet<DocumentStepHistory> DocumentStepHistory { get; set; }
 
@@ -35,82 +33,6 @@ namespace DocManagementBackend.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
-
-            // Circuit Status configuration
-            modelBuilder.Entity<CircuitStatus>(entity =>
-            {
-                entity.HasOne(s => s.Circuit)
-                    .WithMany(c => c.Statuses)
-                    .HasForeignKey(s => s.CircuitId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasIndex(s => new { s.CircuitId, s.Type })
-                    .HasFilter("[Type] IN ('initial', 'final')")
-                    .IsUnique();
-            });
-
-            // Circuit Step configuration
-            modelBuilder.Entity<CircuitStep>(entity =>
-            {
-                entity.HasOne(s => s.Circuit)
-                    .WithMany(c => c.Steps)
-                    .HasForeignKey(s => s.CircuitId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(s => s.FromStatus)
-                    .WithMany(s => s.FromSteps)
-                    .HasForeignKey(s => s.FromStatusId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(s => s.ToStatus)
-                    .WithMany(s => s.ToSteps)
-                    .HasForeignKey(s => s.ToStatusId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasIndex(s => new { s.CircuitId, s.FromStatusId, s.ToStatusId })
-                    .IsUnique();
-            });
-
-            // Document Circuit History configuration
-            modelBuilder.Entity<DocumentCircuitHistory>(entity =>
-            {
-                entity.HasOne(h => h.Document)
-                    .WithMany(d => d.History)
-                    .HasForeignKey(h => h.DocumentId)
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                entity.HasOne(h => h.FromStatus)
-                    .WithMany()
-                    .HasForeignKey(h => h.FromStatusId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(h => h.ToStatus)
-                    .WithMany()
-                    .HasForeignKey(h => h.ToStatusId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(h => h.Step)
-                    .WithMany()
-                    .HasForeignKey(h => h.StepId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(h => h.Status)
-                    .WithMany()
-                    .HasForeignKey(h => h.StatusId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(h => h.Action)
-                    .WithMany()
-                    .HasForeignKey(h => h.ActionId)
-                    .OnDelete(DeleteBehavior.Restrict);
-
-                entity.HasOne(h => h.ProcessedBy)
-                    .WithMany()
-                    .HasForeignKey(h => h.ProcessedByUserId)
-                    .OnDelete(DeleteBehavior.Restrict);
-            });
-
             // SubType relationship with Document
             modelBuilder.Entity<Document>()
                 .HasOne(d => d.SubType)
@@ -124,6 +46,25 @@ namespace DocManagementBackend.Data
                 .WithMany()
                 .HasForeignKey(st => st.DocumentTypeId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // DocumentCircuitHistory relationships
+            modelBuilder.Entity<DocumentCircuitHistory>()
+                .HasOne(d => d.Document)
+                .WithMany()
+                .HasForeignKey(d => d.DocumentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DocumentCircuitHistory>()
+                .HasOne(d => d.Step)
+                .WithMany()
+                .HasForeignKey(d => d.StepId)
+                .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<DocumentCircuitHistory>()
+                .HasOne(d => d.ProcessedBy)
+                .WithMany()
+                .HasForeignKey(d => d.ProcessedByUserId)
+                .OnDelete(DeleteBehavior.NoAction);
 
             // DocumentStepHistory relationships
             modelBuilder.Entity<DocumentStepHistory>()

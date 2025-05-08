@@ -8,32 +8,16 @@ namespace DocManagementBackend.Models
     {
         [Key]
         public int Id { get; set; }
-
+        public string CircuitKey { get; set; } = string.Empty;
         [Required]
         public string Title { get; set; } = string.Empty;
-
-        public string? Description { get; set; }
-
         public string Descriptif { get; set; } = string.Empty;
-
-        public string CircuitKey { get; set; } = string.Empty;
-
-        public int CrdCounter { get; set; }
-
-        public bool IsActive { get; set; } = true;
-
-        public bool AllowBacktrack { get; set; } = false;
-
-        public bool HasOrderedFlow { get; set; } = true;
-
-        public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-
-        public DateTime? UpdatedAt { get; set; }
-
-        // Navigation properties
-        public ICollection<CircuitStatus> Statuses { get; set; } = new List<CircuitStatus>();
-        public ICollection<CircuitStep> Steps { get; set; } = new List<CircuitStep>();
-        public ICollection<Document> Documents { get; set; } = new List<Document>();
+        public bool IsActive { get; set; } = false;
+        public int CrdCounter { get; set; } = 0;
+        // public bool HasOrderedFlow { get; set; } = false;
+        // public bool AllowBacktrack { get; set; } = true;
+        [JsonIgnore]
+        public ICollection<Status> Statuses { get; set; } = new List<Status>();
     }
 
     public class Step
@@ -49,20 +33,14 @@ namespace DocManagementBackend.Models
         [Required]
         public string Title { get; set; } = string.Empty;
         public string Descriptif { get; set; } = string.Empty;
-        public int OrderIndex { get; set; } = 0;
-        public int? ResponsibleRoleId { get; set; }
-        [ForeignKey("ResponsibleRoleId")]
+        public int? CurrentStatusId { get; set; }
+        [ForeignKey("CurrentStatusId")]
         [JsonIgnore]
-        public Role? ResponsibleRole { get; set; }
-        public int? NextStepId { get; set; }
-        [ForeignKey("NextStepId")]
+        public Status? CurrentStatus { get; set; }
+        public int? NextStatusId { get; set; }
+        [ForeignKey("NextStatusId")]
         [JsonIgnore]
-        public Step? NextStep { get; set; }
-        public int? PrevStepId { get; set; }
-        [ForeignKey("PrevStepId")]
-        [JsonIgnore]
-        public Step? PrevStep { get; set; }
-        public bool IsFinalStep { get; set; } = false;
+        public Status? NextStatus { get; set; }
         [JsonIgnore]
         public ICollection<Status> Statuses { get; set; } = new List<Status>();
         [JsonIgnore]

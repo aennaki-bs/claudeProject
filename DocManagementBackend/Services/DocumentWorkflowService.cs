@@ -167,7 +167,7 @@ namespace DocManagementBackend.Services
 
                 // Move to the next step
                 document.CurrentStepId = nextStep.Id;
-                document.CurrentStep = await _context.Steps.FindAsync(nextStep.Id);
+                document.CurrentStep = nextStep;
                 document.UpdatedAt = DateTime.UtcNow;
 
                 // If next step is final, mark document as completed
@@ -273,7 +273,7 @@ namespace DocManagementBackend.Services
 
                 // Move back to previous step
                 document.CurrentStepId = previousStep.Id;
-                document.CurrentStep = await _context.Steps.FindAsync(previousStep.Id);
+                document.CurrentStep = previousStep;
                 document.UpdatedAt = DateTime.UtcNow;
                 
                 // If the document was completed and we're going back, it's no longer complete
@@ -491,15 +491,16 @@ namespace DocManagementBackend.Services
         public async Task<bool> ProcessActionAsync(int documentId, int actionId, int userId, string comments = "", bool isApproved = true)
         {
             using var transaction = await _context.Database.BeginTransactionAsync();
+
             try
             {
                 var document = await _context.Documents
                     .Include(d => d.Circuit)
-                    .Include(d => d.CurrentStatus)
+                    .Include(d => d.CurrentStep)
                     .FirstOrDefaultAsync(d => d.Id == documentId);
 
-                if (document == null || document.CircuitId == null || document.CurrentStatusId == null)
-                    throw new InvalidOperationException("Document not assigned to circuit or status");
+                if (document == null || document.CircuitId == null || document.CurrentStepId == null)
+                    throw new InvalidOperationException("Document not assigned to circuit or step");
 
                 var user = await _context.Users
                     .FirstOrDefaultAsync(u => u.Id == userId);
@@ -511,17 +512,24 @@ namespace DocManagementBackend.Services
                 if (action == null)
                     throw new KeyNotFoundException($"Action ID {actionId} not found");
 
+                // Verify the action is valid for the current step
+                var currentStep = document.CurrentStep;
+                if (currentStep == null)
+                    throw new InvalidOperationException("Current step not found");
+
+                var stepAction = await _context.StepActions
+                    .FirstOrDefaultAsync(sa => sa.StepId == currentStep.Id && sa.ActionId == actionId);
+
+                if (stepAction == null)
+                    throw new InvalidOperationException($"Action ID {actionId} not valid for step ID {currentStep.Id}");
+
                 // Create history entry
                 var historyEntry = new DocumentCircuitHistory
                 {
                     DocumentId = documentId,
-                    Document = document,
-                    FromStatusId = document.CurrentStatusId,
-                    FromStatus = document.CurrentStatus,
+                    StepId = currentStep.Id,
                     ActionId = actionId,
-                    Action = action,
                     ProcessedByUserId = userId,
-                    ProcessedBy = user,
                     ProcessedAt = DateTime.UtcNow,
                     Comments = comments,
                     IsApproved = isApproved
@@ -537,36 +545,42 @@ namespace DocManagementBackend.Services
                     return true;
                 }
 
-                // Find the next step based on the current status and action
-                var step = await _context.CircuitSteps
-                    .Include(s => s.FromStatus)
-                    .Include(s => s.ToStatus)
-                    .FirstOrDefaultAsync(s => s.CircuitId == document.CircuitId && s.FromStatusId == document.CurrentStatusId);
+                // Find which statuses this action affects
+                var affectedStatuses = await _context.ActionStatusEffects
+                    .Where(ase => ase.ActionId == actionId && ase.StepId == currentStep.Id)
+                    .ToListAsync();
 
-                if (step == null)
+                // Update the affected statuses
+                foreach (var effect in affectedStatuses)
                 {
-                    // If no next step is found, check if we're at the final status
-                    var currentStatus = document.CurrentStatus;
-                    if (currentStatus?.Type == "final")
+                    var documentStatus = await _context.DocumentStatus
+                        .FirstOrDefaultAsync(ds => ds.DocumentId == documentId && ds.StatusId == effect.StatusId);
+
+                    if (documentStatus == null)
                     {
-                        document.IsCircuitCompleted = true;
-                        document.Status = 2; // Completed
+                        documentStatus = new DocumentStatus
+                        {
+                            DocumentId = documentId,
+                            StatusId = effect.StatusId,
+                            IsComplete = effect.SetsComplete,
+                            CompletedByUserId = effect.SetsComplete ? userId : null,
+                            CompletedAt = effect.SetsComplete ? DateTime.UtcNow : null
+                        };
+                        _context.DocumentStatus.Add(documentStatus);
                     }
                     else
                     {
-                        throw new InvalidOperationException("No valid next step found");
+                        documentStatus.IsComplete = effect.SetsComplete;
+                        documentStatus.CompletedByUserId = effect.SetsComplete ? userId : null;
+                        documentStatus.CompletedAt = effect.SetsComplete ? DateTime.UtcNow : null;
                     }
                 }
-                else
-                {
-                    // Update document's current status
-                    document.CurrentStatusId = step.ToStatusId;
-                    document.CurrentStatus = step.ToStatus;
-                    historyEntry.ToStatusId = step.ToStatusId;
-                    historyEntry.ToStatus = step.ToStatus;
 
-                    // Update document status
-                    document.Status = 1; // In Progress
+                // Check if we should auto-advance to the next step
+                bool canMoveNext = await CanMoveToNextStepAsync(documentId);
+                if (canMoveNext && action.AutoAdvance)
+                {
+                    await MoveToNextStepAsync(documentId, currentStep.Id, userId, $"Auto-advanced by action: {action.Title}");
                 }
 
                 await _context.SaveChangesAsync();
@@ -634,61 +648,6 @@ namespace DocManagementBackend.Services
                 _context.Documents.Remove(document);
                 await _context.SaveChangesAsync();
                 
-                await transaction.CommitAsync();
-                return true;
-            }
-            catch
-            {
-                await transaction.RollbackAsync();
-                throw;
-            }
-        }
-
-        public async Task<bool> AssignCircuitAsync(int documentId, int circuitId, int userId)
-        {
-            using var transaction = await _context.Database.BeginTransactionAsync();
-            try
-            {
-                var document = await _context.Documents.FindAsync(documentId);
-                if (document == null)
-                    throw new KeyNotFoundException($"Document ID {documentId} not found");
-
-                var circuit = await _context.Circuits
-                    .Include(c => c.Steps.OrderBy(s => s.OrderIndex))
-                    .FirstOrDefaultAsync(c => c.Id == circuitId);
-
-                if (circuit == null)
-                    throw new KeyNotFoundException($"Circuit ID {circuitId} not found");
-
-                var user = await _context.Users.FindAsync(userId);
-                if (user == null)
-                    throw new KeyNotFoundException($"User ID {userId} not found");
-
-                // Find first step (lowest OrderIndex)
-                var firstStep = circuit.Steps.OrderBy(s => s.OrderIndex).First();
-                document.CurrentStatusId = firstStep.FromStatusId;
-                document.CurrentStatus = firstStep.FromStatus;
-                document.CircuitId = circuitId;
-                document.Circuit = circuit;
-                document.IsCircuitCompleted = false;
-
-                // Create history entry
-                var historyEntry = new DocumentCircuitHistory
-                {
-                    DocumentId = documentId,
-                    Document = document,
-                    FromStatusId = null,
-                    ToStatusId = firstStep.FromStatusId,
-                    ToStatus = firstStep.FromStatus,
-                    ProcessedByUserId = userId,
-                    ProcessedBy = user,
-                    ProcessedAt = DateTime.UtcNow,
-                    Comments = "Document assigned to circuit",
-                    IsApproved = true
-                };
-                _context.DocumentCircuitHistory.Add(historyEntry);
-
-                await _context.SaveChangesAsync();
                 await transaction.CommitAsync();
                 return true;
             }

@@ -47,7 +47,6 @@ namespace DocManagementBackend.Models
         public List<ActionDto> AvailableActions { get; set; } = new();
         public bool CanAdvanceToNextStep { get; set; }
         public bool CanReturnToPreviousStep { get; set; }
-        public int ProcessingDays { get; set; }
     }
 
     public class PendingDocumentDto

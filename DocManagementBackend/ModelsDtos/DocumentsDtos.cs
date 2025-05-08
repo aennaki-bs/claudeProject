@@ -1,6 +1,5 @@
 namespace DocManagementBackend.Models
 {
-    
 
     public class CreateDocumentRequest
     {

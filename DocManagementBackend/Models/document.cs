@@ -20,32 +20,32 @@ namespace DocManagementBackend.Models
         public int? SubTypeId { get; set; }
         [ForeignKey("SubTypeId")]
         public SubType? SubType { get; set; }
-
+        public int? CurrentStatusId { get; set; }
+        [ForeignKey("CurrentStatusId")]
+        [JsonIgnore]
+        public Status? CurrentStatus { get; set; }
         public int? CurrentStepId { get; set; }
         [ForeignKey("CurrentStepId")]
         [JsonIgnore]
-        public CircuitStep? CurrentStep { get; set; }
+        public Step? CurrentStep { get; set; }
         public int? CircuitId { get; set; }
         [ForeignKey("CircuitId")]
         public Circuit? Circuit { get; set; }
-        public int? CurrentStatusId { get; set; }
-        [ForeignKey("CurrentStatusId")]
-        public CircuitStatus? CurrentStatus { get; set; }
         public bool IsCircuitCompleted { get; set; } = false;
         [Required]
         public string DocumentKey { get; set; } = string.Empty;
         public string DocumentAlias { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
         public string? Content { get; set; }
-        public int Status { get; set; } = 0; // 0: Draft, 1: In Progress, 2: Completed, 3: Rejected
-        public DateTime? DocDate { get; set; }
+        [Required]
+        public int Status { get; set; } // 0 = Open, 1 = Validated
+        public DateTime DocDate { get; set; }
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
-        public DateTime? UpdatedAt { get; set; }
+        public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
         public int LigneCouter { get; set; } = 0;
         public bool IsDeleted { get; set; } = false;
         [JsonIgnore]
         public ICollection<Ligne> Lignes { get; set; } = new List<Ligne>();
-        public ICollection<DocumentCircuitHistory> History { get; set; } = new List<DocumentCircuitHistory>();
     }
 
     public class DocumentType
@@ -96,6 +96,38 @@ namespace DocManagementBackend.Models
         public int Counter { get; set; }
         public int circuitCounter { get; set; }
     }
+    public class DocumentCircuitHistory
+    {
+        [Key]
+        public int Id { get; set; }
+        [Required]
+        public int DocumentId { get; set; }
+        [ForeignKey("DocumentId")]
+        [JsonIgnore]
+        public Document? Document { get; set; }
+        [Required]
+        public int StepId { get; set; }
+        [ForeignKey("StepId")]
+        [JsonIgnore]
+        public Step? Step { get; set; }
+        public int? ActionId { get; set; }
+        [ForeignKey("ActionId")]
+        [JsonIgnore]
+        public Action? Action { get; set; }
+        public int? StatusId { get; set; }
+        [ForeignKey("StatusId")]
+        [JsonIgnore]
+        public Status? Status { get; set; }
+        [Required]
+        public int ProcessedByUserId { get; set; }
+        [ForeignKey("ProcessedByUserId")]
+        [JsonIgnore]
+        public User? ProcessedBy { get; set; }
+        public DateTime ProcessedAt { get; set; } = DateTime.UtcNow;
+        public string Comments { get; set; } = string.Empty;
+        public bool IsApproved { get; set; } = true;
+    }
+    
     public class DocumentStepHistory
     {
         [Key]

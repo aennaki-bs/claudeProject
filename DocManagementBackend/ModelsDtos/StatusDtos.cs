@@ -3,7 +3,11 @@ namespace DocManagementBackend.Models
     public class CreateStatusDto
     {
         public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public bool IsRequired { get; set; } = true;
+        public bool IsInitial { get; set; } = false;
+        public bool IsFinal { get; set; } = false;
+        public bool IsFlexible { get; set; } = false;
         // public bool IsComplete { get; set; } = true;
     }
 
@@ -12,9 +16,11 @@ namespace DocManagementBackend.Models
         public int StatusId { get; set; }
         public string StatusKey { get; set; } = string.Empty;
         public string Title { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public bool IsRequired { get; set; }
-        public bool IsComplete { get; set; }
-        public int StepId { get; set; }
+        public bool IsInitial { get; set; }
+        public bool IsFinal { get; set; }
+        public bool IsFlexible { get; set; }
     }
 
     public class DocumentStatusDto
