@@ -14,10 +14,12 @@ namespace DocManagementBackend.Models
         public string Descriptif { get; set; } = string.Empty;
         public bool IsActive { get; set; } = false;
         public int CrdCounter { get; set; } = 0;
-        // public bool HasOrderedFlow { get; set; } = false;
-        // public bool AllowBacktrack { get; set; } = true;
+
         [JsonIgnore]
         public ICollection<Status> Statuses { get; set; } = new List<Status>();
+
+        [JsonIgnore]
+        public ICollection<Step> Steps { get; set; } = new List<Step>();
     }
 
     public class Step
@@ -25,24 +27,29 @@ namespace DocManagementBackend.Models
         [Key]
         public int Id { get; set; }
         public string StepKey { get; set; } = string.Empty;
+
         [Required]
         public int CircuitId { get; set; }
         [ForeignKey("CircuitId")]
         [JsonIgnore]
         public Circuit? Circuit { get; set; }
+
         [Required]
         public string Title { get; set; } = string.Empty;
         public string Descriptif { get; set; } = string.Empty;
-        public int? CurrentStatusId { get; set; }
+
+        [Required]
+        public int CurrentStatusId { get; set; }
         [ForeignKey("CurrentStatusId")]
         [JsonIgnore]
         public Status? CurrentStatus { get; set; }
-        public int? NextStatusId { get; set; }
+
+        [Required]
+        public int NextStatusId { get; set; }
         [ForeignKey("NextStatusId")]
         [JsonIgnore]
         public Status? NextStatus { get; set; }
-        [JsonIgnore]
-        public ICollection<Status> Statuses { get; set; } = new List<Status>();
+
         [JsonIgnore]
         public ICollection<StepAction> StepActions { get; set; } = new List<StepAction>();
     }

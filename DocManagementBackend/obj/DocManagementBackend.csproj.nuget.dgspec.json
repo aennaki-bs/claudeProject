@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj": {}
+    "C:\\Users\\ENNAKI\\Desktop\\claudeProject\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj": {}
   },
   "projects": {
-    "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj": {
+    "C:\\Users\\ENNAKI\\Desktop\\claudeProject\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj",
+        "projectUniqueName": "C:\\Users\\ENNAKI\\Desktop\\claudeProject\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj",
         "projectName": "DocManagementBackend",
-        "projectPath": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj",
+        "projectPath": "C:\\Users\\ENNAKI\\Desktop\\claudeProject\\DMBApp\\DocManagementBackend\\DocManagementBackend.csproj",
         "packagesPath": "C:\\Users\\ENNAKI\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\ENNAKI\\Desktop\\DMBApp\\DocManagementBackend\\obj\\",
+        "outputPath": "C:\\Users\\ENNAKI\\Desktop\\claudeProject\\DMBApp\\DocManagementBackend\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
           "C:\\Users\\ENNAKI\\AppData\\Roaming\\NuGet\\NuGet.Config"

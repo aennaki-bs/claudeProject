@@ -16,7 +16,6 @@ namespace DocManagementBackend.Data
         public DbSet<SousLigne> SousLignes { get; set; }
         public DbSet<Role> Roles { get; set; }
         public DbSet<DocumentType> DocumentTypes { get; set; }
-        // New SubType entity
         public DbSet<SubType> SubTypes { get; set; }
         public DbSet<TypeCounter> TypeCounter { get; set; }
         public DbSet<Circuit> Circuits { get; set; }
@@ -46,6 +45,34 @@ namespace DocManagementBackend.Data
                 .WithMany()
                 .HasForeignKey(st => st.DocumentTypeId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // Status relationships with Circuit
+            modelBuilder.Entity<Status>()
+                .HasOne(s => s.Circuit)
+                .WithMany(c => c.Statuses)
+                .HasForeignKey(s => s.CircuitId);
+
+            // Step relationships with Circuit and Status
+            modelBuilder.Entity<Step>()
+                .HasOne(s => s.Circuit)
+                .WithMany(c => c.Steps)
+                .HasForeignKey(s => s.CircuitId);
+
+            modelBuilder.Entity<Step>()
+                .HasOne(s => s.CurrentStatus)
+                .WithMany()
+                .HasForeignKey(s => s.CurrentStatusId);
+
+            modelBuilder.Entity<Step>()
+                .HasOne(s => s.NextStatus)
+                .WithMany()
+                .HasForeignKey(s => s.NextStatusId);
+
+            // Document CurrentStatus relationship
+            modelBuilder.Entity<Document>()
+                .HasOne(d => d.CurrentStatus)
+                .WithMany()
+                .HasForeignKey(d => d.CurrentStatusId);
 
             // DocumentCircuitHistory relationships
             modelBuilder.Entity<DocumentCircuitHistory>()
@@ -84,12 +111,6 @@ namespace DocManagementBackend.Data
                 .WithMany()
                 .HasForeignKey(d => d.UserId)
                 .OnDelete(DeleteBehavior.NoAction);
-
-            // Status relationships
-            modelBuilder.Entity<Status>()
-                .HasOne(s => s.Step)
-                .WithMany(s => s.Statuses)
-                .HasForeignKey(s => s.StepId);
 
             // StepAction relationships
             modelBuilder.Entity<StepAction>()

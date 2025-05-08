@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using DocManagementBackend.Data;
 using DocManagementBackend.Models;
+using DocManagementBackend.Services;
 using System.Security.Claims;
 
 namespace DocManagementBackend.Controllers
@@ -13,14 +14,16 @@ namespace DocManagementBackend.Controllers
     public class StatusController : ControllerBase
     {
         private readonly ApplicationDbContext _context;
+        private readonly CircuitManagementService _circuitService;
 
-        public StatusController(ApplicationDbContext context)
+        public StatusController(ApplicationDbContext context, CircuitManagementService circuitService)
         {
             _context = context;
+            _circuitService = circuitService;
         }
 
-        [HttpGet("step/{stepId}")]
-        public async Task<ActionResult<IEnumerable<StatusDto>>> GetStatusesForStep(int stepId)
+        [HttpGet("circuit/{circuitId}")]
+        public async Task<ActionResult<IEnumerable<StatusDto>>> GetStatusesForCircuit(int circuitId)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null)
@@ -33,27 +36,30 @@ namespace DocManagementBackend.Controllers
                 return BadRequest("User not found.");
 
             if (!user.IsActive)
-                return Unauthorized("User account is deactivated. Please contact un admin!");
+                return Unauthorized("User account is deactivated. Please contact an admin!");
 
             var statuses = await _context.Status
-                .Where(s => s.StepId == stepId)
+                .Where(s => s.CircuitId == circuitId)
                 .OrderBy(s => s.Id)
                 .Select(s => new StatusDto
                 {
                     StatusId = s.Id,
                     StatusKey = s.StatusKey,
                     Title = s.Title,
+                    Description = s.Description,
                     IsRequired = s.IsRequired,
-                    IsComplete = s.IsComplete,
-                    StepId = s.StepId
+                    IsInitial = s.IsInitial,
+                    IsFinal = s.IsFinal,
+                    IsFlexible = s.IsFlexible,
+                    CircuitId = s.CircuitId
                 })
                 .ToListAsync();
 
             return Ok(statuses);
         }
 
-        [HttpPost("step/{stepId}")]
-        public async Task<ActionResult<StatusDto>> AddStatusToStep(int stepId, [FromBody] CreateStatusDto createStatusDto)
+        [HttpGet("{statusId}")]
+        public async Task<ActionResult<StatusDto>> GetStatus(int statusId)
         {
             var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
             if (userIdClaim == null)
@@ -66,68 +72,125 @@ namespace DocManagementBackend.Controllers
                 return BadRequest("User not found.");
 
             if (!user.IsActive)
-                return Unauthorized("User account is deactivated. Please contact un admin!");
-
-            if (user.Role!.RoleName != "Admin" && user.Role!.RoleName != "FullUser")
-                return Unauthorized("User not allowed to add statuses.");
-
-            var step = await _context.Steps.FindAsync(stepId);
-            if (step == null)
-                return NotFound("Step not found.");
-
-            var status = new Status
-            {
-                StepId = stepId,
-                Title = createStatusDto.Title,
-                IsRequired = createStatusDto.IsRequired,
-                IsComplete = false,
-                StatusKey = $"ST-{Guid.NewGuid().ToString().Substring(0, 3)}"
-            };
-
-            _context.Status.Add(status);
-            await _context.SaveChangesAsync();
-
-            return CreatedAtAction(nameof(GetStatusesForStep), new { stepId = stepId }, new StatusDto
-            {
-                StatusId = status.Id,
-                StatusKey = status.StatusKey,
-                Title = status.Title,
-                IsRequired = status.IsRequired,
-                IsComplete = status.IsComplete,
-                StepId = status.StepId
-            });
-        }
-
-        [HttpPut("{statusId}")]
-        public async Task<IActionResult> UpdateStatus(int statusId, [FromBody] CreateStatusDto updateStatusDto)
-        {
-            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (userIdClaim == null)
-                return Unauthorized("User ID claim is missing.");
-
-            int userId = int.Parse(userIdClaim);
-            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == userId);
-
-            if (user == null)
-                return BadRequest("User not found.");
-
-            if (!user.IsActive)
-                return Unauthorized("User account is deactivated. Please contact un admin!");
-
-            if (user.Role!.RoleName != "Admin" && user.Role!.RoleName != "FullUser")
-                return Unauthorized("User not allowed to update statuses.");
+                return Unauthorized("User account is deactivated. Please contact an admin!");
 
             var status = await _context.Status.FindAsync(statusId);
             if (status == null)
                 return NotFound("Status not found.");
 
-            if (!string.IsNullOrEmpty(updateStatusDto.Title))
-                status.Title = updateStatusDto.Title;
-            status.IsRequired = updateStatusDto.IsRequired;
-            // status.IsComplete = updateStatusDto.IsComplete;
+            var statusDto = new StatusDto
+            {
+                StatusId = status.Id,
+                StatusKey = status.StatusKey,
+                Title = status.Title,
+                Description = status.Description,
+                IsRequired = status.IsRequired,
+                IsInitial = status.IsInitial,
+                IsFinal = status.IsFinal,
+                IsFlexible = status.IsFlexible,
+                CircuitId = status.CircuitId
+            };
 
-            await _context.SaveChangesAsync();
-            return Ok("Status updated successfully.");
+            return Ok(statusDto);
+        }
+
+        [HttpPost("circuit/{circuitId}")]
+        public async Task<ActionResult<StatusDto>> AddStatusToCircuit(int circuitId, [FromBody] CreateStatusDto createStatusDto)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+                return Unauthorized("User ID claim is missing.");
+
+            int userId = int.Parse(userIdClaim);
+            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return BadRequest("User not found.");
+
+            if (!user.IsActive)
+                return Unauthorized("User account is deactivated. Please contact an admin!");
+
+            if (user.Role!.RoleName != "Admin" && user.Role!.RoleName != "FullUser")
+                return Unauthorized("User not allowed to add statuses.");
+
+            var status = new Status
+            {
+                CircuitId = circuitId,
+                Title = createStatusDto.Title,
+                Description = createStatusDto.Description,
+                IsRequired = createStatusDto.IsRequired,
+                IsInitial = createStatusDto.IsInitial,
+                IsFinal = createStatusDto.IsFinal,
+                IsFlexible = createStatusDto.IsFlexible
+            };
+
+            try
+            {
+                var createdStatus = await _circuitService.AddStatusToCircuitAsync(status);
+
+                return CreatedAtAction(nameof(GetStatus), new { statusId = createdStatus.Id }, new StatusDto
+                {
+                    StatusId = createdStatus.Id,
+                    StatusKey = createdStatus.StatusKey,
+                    Title = createdStatus.Title,
+                    Description = createdStatus.Description,
+                    IsRequired = createdStatus.IsRequired,
+                    IsInitial = createdStatus.IsInitial,
+                    IsFinal = createdStatus.IsFinal,
+                    IsFlexible = createdStatus.IsFlexible,
+                    CircuitId = createdStatus.CircuitId
+                });
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error creating status: {ex.Message}");
+            }
+        }
+
+        [HttpPut("{statusId}")]
+        public async Task<IActionResult> UpdateStatus(int statusId, [FromBody] UpdateStatusDto updateStatusDto)
+        {
+            var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+            if (userIdClaim == null)
+                return Unauthorized("User ID claim is missing.");
+
+            int userId = int.Parse(userIdClaim);
+            var user = await _context.Users.Include(u => u.Role).FirstOrDefaultAsync(u => u.Id == userId);
+
+            if (user == null)
+                return BadRequest("User not found.");
+
+            if (!user.IsActive)
+                return Unauthorized("User account is deactivated. Please contact an admin!");
+
+            if (user.Role!.RoleName != "Admin" && user.Role!.RoleName != "FullUser")
+                return Unauthorized("User not allowed to update statuses.");
+
+            try
+            {
+                var success = await _circuitService.UpdateStatusAsync(statusId, updateStatusDto);
+                return Ok("Status updated successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error updating status: {ex.Message}");
+            }
         }
 
         [HttpDelete("{statusId}")]
@@ -144,24 +207,28 @@ namespace DocManagementBackend.Controllers
                 return BadRequest("User not found.");
 
             if (!user.IsActive)
-                return Unauthorized("User account is deactivated. Please contact un admin!");
+                return Unauthorized("User account is deactivated. Please contact an admin!");
 
             if (user.Role!.RoleName != "Admin" && user.Role!.RoleName != "FullUser")
                 return Unauthorized("User not allowed to delete statuses.");
 
-            var status = await _context.Status.FindAsync(statusId);
-            if (status == null)
-                return NotFound("Status not found.");
-
-            // Check if documents are already using this status
-            var inUse = await _context.DocumentStatus.AnyAsync(ds => ds.StatusId == statusId);
-            if (inUse)
-                return BadRequest("Cannot delete status that is in use by documents.");
-
-            _context.Status.Remove(status);
-            await _context.SaveChangesAsync();
-
-            return Ok("Status deleted successfully.");
+            try
+            {
+                var success = await _circuitService.DeleteStatusAsync(statusId);
+                return Ok("Status deleted successfully.");
+            }
+            catch (KeyNotFoundException ex)
+            {
+                return NotFound(ex.Message);
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Error deleting status: {ex.Message}");
+            }
         }
     }
 }

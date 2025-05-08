@@ -8,7 +8,16 @@ namespace DocManagementBackend.Models
         public bool IsInitial { get; set; } = false;
         public bool IsFinal { get; set; } = false;
         public bool IsFlexible { get; set; } = false;
-        // public bool IsComplete { get; set; } = true;
+    }
+
+    public class UpdateStatusDto
+    {
+        public string? Title { get; set; }
+        public string? Description { get; set; }
+        public bool? IsRequired { get; set; }
+        public bool? IsInitial { get; set; }
+        public bool? IsFinal { get; set; }
+        public bool? IsFlexible { get; set; }
     }
 
     public class StatusDto
@@ -21,6 +30,7 @@ namespace DocManagementBackend.Models
         public bool IsInitial { get; set; }
         public bool IsFinal { get; set; }
         public bool IsFlexible { get; set; }
+        public int CircuitId { get; set; }
     }
 
     public class DocumentStatusDto
@@ -40,5 +50,4 @@ namespace DocManagementBackend.Models
         public bool IsComplete { get; set; } = true;
         public string Comments { get; set; } = string.Empty;
     }
-
 }
